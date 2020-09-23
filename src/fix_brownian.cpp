@@ -65,7 +65,6 @@ FixBrownian::FixBrownian(LAMMPS *lmp, int narg, char **arg) :
   if(domain->dimension == 2) is_2d=true;
 
   // initialize Marsaglia RNG with processor-unique seed
-
   random = new RanMars(lmp,seed + comm->me);
 
 }
@@ -108,7 +107,8 @@ void FixBrownian::initial_integrate(int /*vflag*/)
   AtomVecEllipsoid::Bonus *bonus;
   int *ellipsoid;
   double rot[3];
-  double qrot[4];
+  //double qrot[4]; //for ALG1
+  double dquat[4]; //for ALG2
 
   if(do_orientational_dynamics){
     bonus = avec->bonus;
@@ -144,11 +144,19 @@ void FixBrownian::initial_integrate(int /*vflag*/)
           rot[1]=drpref*torque[i][1]+srpref*random->gaussian();
         }
         rot[2]=drpref*torque[i][2]+srpref*random->gaussian();
-        rvec_to_quat(rot,qrot);
-        //rotate quaternion
-        double quat0[4];
-        std::copy(quat,quat+4,quat0);
-        MathExtra::quatquat(qrot,quat0,quat);
+        //ALG1 (exact)
+        //rvec_to_quat(rot,qrot);
+        ////rotate quaternion
+        //double quat0[4];
+        //std::copy(quat,quat+4,quat0);
+        //MathExtra::quatquat(qrot,quat0,quat);
+
+        //ALG2 (approximate)
+        MathExtra::vecquat(rot,quat,dquat);
+        quat[0]=quat[0]+0.5*dquat[0];
+        quat[1]=quat[1]+0.5*dquat[1];
+        quat[2]=quat[2]+0.5*dquat[2];
+        quat[3]=quat[3]+0.5*dquat[3];
 
         qnormalize(quat);
       }
