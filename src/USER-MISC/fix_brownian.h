@@ -40,6 +40,7 @@ class FixBrownian : public Fix {
   double temp,gamma,ang_gamma;
   double dtpref,drpref,stpref,srpref;
   bool do_orientational_dynamics=false;
+  bool do_exact_rotation=false;
   bool is_2d=false;
   class RanMars *random;
 
@@ -49,11 +50,19 @@ class FixBrownian : public Fix {
   inline void rvec_to_quat(const double * r, double * q)
     {
       double norm_r=sqrt(r[0]*r[0]+r[1]*r[1]+r[2]*r[2]);
-      double pref=sin(0.5*norm_r)/norm_r;
-      q[0]=cos(0.5*norm_r);
-      q[1]=pref*r[0];
-      q[2]=pref*r[1];
-      q[3]=pref*r[2];
+      if(norm_r > 0.0){
+        double pref=sin(0.5*norm_r)/norm_r;
+        q[0]=cos(0.5*norm_r);
+        q[1]=pref*r[0];
+        q[2]=pref*r[1];
+        q[3]=pref*r[2];
+      }
+      else{
+        q[0]=1.0;
+        q[1]=0.0;
+        q[2]=0.0;
+        q[3]=0.0;
+      }
     }
 };
 
