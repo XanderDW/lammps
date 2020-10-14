@@ -43,7 +43,7 @@ FixBrownian::FixBrownian(LAMMPS *lmp, int narg, char **arg) :
   if ((narg != 6) && (narg != 8) && (narg != 9)) error->all(FLERR,"Illegal fix brownian command");
 
   temp = utils::numeric(FLERR,arg[3],false,lmp);
-  if (temp <= 0.0) error->all(FLERR,"Fix brownian temperature must be > 0.0");
+  if (temp < 0.0) error->all(FLERR,"Fix brownian temperature must be >= 0.0");
   gamma = utils::numeric(FLERR,arg[4],false,lmp);
   if (gamma <= 0.0) error->all(FLERR,"Fix brownian gamma must be > 0.0");
   seed = utils::inumeric(FLERR,arg[5],false,lmp);
